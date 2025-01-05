@@ -5,6 +5,7 @@ import { ReactNativeModal } from "react-native-modal";
 import { Alert, Image, ScrollView, Text, View } from "react-native";
 
 import OAuth from "@/components/OAuth";
+import { fetchAPI } from "@/lib/fetch";
 import { icons, images } from "@/constants";
 import InputField from "@/components/InputField";
 import CustomButton from "@/components/CustomButton";
@@ -61,7 +62,15 @@ const SignUp = () => {
       // If verification was completed, set the session to active
       // and redirect the user
       if (signUpAttempt.status === "complete") {
-        // TODO: Store User in DB
+        await fetchAPI("/(api)/user", {
+          method: "POST",
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            clerkId: signUpAttempt.createdUserId,
+          }),
+        });
+
         await setActive({ session: signUpAttempt.createdSessionId });
         setVerification({
           ...verification,
@@ -106,6 +115,7 @@ const SignUp = () => {
           <InputField
             label="Email"
             placeholder="Enter your email"
+            keyboardType={"email-address"}
             icon={icons.email}
             value={form.email}
             onChangeText={(email) => setForm({ ...form, email })}
